@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Performance Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Include consistent header -->
+{% include '_header.html' %}
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <!-- Welcome Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="welcome-card">
+                        <h1>Welcome back, {{ current_user.name or 'User' }}! <i class="fas fa-hand-wave"></i></h1>
+                        <p class="lead">Track your academic performance and get personalized predictions</p>
+                        <div class="user-stats">
+                            <span class="badge bg-primary">{{ current_user.metadata.get('role', 'Student').title() }}</span>
+                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-info">{{ current_user.email }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h3>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="action-card" onclick="navigateToPassFail()">
+                        <div class="action-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h5>Pass/Fail Prediction</h5>
+                        <p>Predict if you'll pass or fail</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="action-card" onclick="navigateToScore()">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5>Score Prediction</h5>
+                        <p>Get your predicted score</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="action-card" onclick="navigateToDropout()">
+                        <div class="action-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h5>Dropout Risk</h5>
+                        <p>Assess dropout probability</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="action-card" onclick="navigateToHistory()">
+                        <div class="action-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h5>Prediction History</h5>
+                        <p>View past predictions</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Overview -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3 class="section-title"><i class="fas fa-chart-bar me-2"></i>Your Statistics</h3>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-predictions"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>12</h3>
+                            <p>Total Predictions</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>85%</h3>
+                            <p>Average Score</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trending-up"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>+15%</h3>
+                            <p>Improvement</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>7</h3>
+                            <p>Days Active</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="content-card">
+                        <h3 class="card-title"><i class="fas fa-clock me-2"></i>Recent Activity</h3>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Pass/Fail Prediction</h6>
+                                    <p class="text-muted">Predicted: PASS (92% confidence)</p>
+                                    <small class="text-muted">2 hours ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-chart-line text-primary"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Score Prediction</h6>
+                                    <p class="text-muted">Predicted: 87/100</p>
+                                    <small class="text-muted">5 hours ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Dropout Risk Assessment</h6>
+                                    <p class="text-muted">Risk: LOW (8% probability)</p>
+                                    <small class="text-muted">1 day ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="content-card">
+                        <h3 class="card-title"><i class="fas fa-lightbulb me-2"></i>Quick Tips</h3>
+                        <div class="tips-list">
+                            <div class="tip-item">
+                                <i class="fas fa-star text-warning"></i>
+                                <p>Study consistently for better predictions</p>
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-book text-info"></i>
+                                <p>Keep your attendance above 80%</p>
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-chart-line text-success"></i>
+                                <p>Track your progress over time</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clerk.js for authentication -->
+    <script src="https://clerk.com/docs/clerk.js"></script>
+    <script>
+        // Clerk initialization
+        const clerk = new Clerk('pk_test_YnVyc3Rpbmctc3RhZy03MC5jbGVyay5hY2NvdW50cy5kZXYk');
+
+        clerk.load().then(() => {
+            // Check if user is authenticated
+            if (!clerk.user) {
+                window.location.href = '/login';
+            }
+        });
+
+        // Logout function
+        function logout() {
+            clerk.signOut().then(() => {
+                window.location.href = '/login';
+            });
+        }
+
+        // Update user profile display
+        function updateUserProfile() {
+            if (clerk.user) {
+                const userDropdown = document.getElementById('userDropdown');
+                if (userDropdown) {
+                    userDropdown.innerHTML = `
+                        <i class="fas fa-user-circle me-1"></i> ${clerk.user.firstName || clerk.user.email}
+                    `;
+                }
+            }
+        }
+
+        // Initialize user profile
+        updateUserProfile();
+
+        // Navigation functions
+        function navigateToPassFail() {
+            window.location.href = '/pass_fail';
+        }
+        
+        function navigateToScore() {
+            window.location.href = '/score_prediction';
+        }
+        
+        function navigateToDropout() {
+            window.location.href = '/dropout_prediction';
+        }
+        
+        function navigateToHistory() {
+            window.location.href = '/history';
+        }
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.stat-card, .action-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

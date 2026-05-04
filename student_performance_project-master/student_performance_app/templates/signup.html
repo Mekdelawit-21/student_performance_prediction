@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Student Performance Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo-section">
+                    <i class="fas fa-book-open"></i>
+                    <h2>Join Student Performance Predictor</h2>
+                </div>
+                <p class="auth-subtitle">Create your account to start predicting academic success</p>
+            </div>
+
+            <!-- Clerk Sign Up Component -->
+            <div id="clerk-sign-up"></div>
+
+            <!-- Alternative Signup Form (Fallback) -->
+            <form id="signup-form" class="auth-form" style="display: none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="first-name" class="form-label">
+                                <i class="fas fa-user me-2"></i>First Name
+                            </label>
+                            <input type="text" class="form-control" id="first-name" name="firstName" required 
+                                   placeholder="Enter your first name">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="last-name" class="form-label">
+                                <i class="fas fa-user me-2"></i>Last Name
+                            </label>
+                            <input type="text" class="form-control" id="last-name" name="lastName" required 
+                                   placeholder="Enter your last name">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope me-2"></i>Email Address
+                    </label>
+                    <input type="email" class="form-control" id="email" name="email" required 
+                           placeholder="Enter your email">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>Password
+                    </label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" id="password" name="password" required 
+                               placeholder="Create a strong password" minlength="8">
+                        <button type="button" class="btn btn-outline-secondary toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength mt-2">
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar strength-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small class="strength-text text-muted">Password strength</small>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="confirm-password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>Confirm Password
+                    </label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" id="confirm-password" name="confirmPassword" required 
+                               placeholder="Confirm your password">
+                        <button type="button" class="btn btn-outline-secondary toggle-password-confirm">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="role" class="form-label">
+                        <i class="fas fa-user-tag me-2"></i>I am a...
+                    </label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="">Select your role</option>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="parent">Parent</option>
+                        <option value="administrator">Administrator</option>
+                    </select>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-btn w-100">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+
+            <!-- Social Signup Options -->
+            <div class="social-login">
+                <button class="btn btn-outline-primary social-btn">
+                    <i class="fab fa-google me-2"></i>Sign up with Google
+                </button>
+                <button class="btn btn-outline-dark social-btn">
+                    <i class="fab fa-github me-2"></i>Sign up with GitHub
+                </button>
+                <button class="btn btn-outline-info social-btn">
+                    <i class="fab fa-microsoft me-2"></i>Sign up with Microsoft
+                </button>
+            </div>
+
+            <div class="auth-footer">
+                <p>Already have an account? 
+                    <a href="{{ url_for('login') }}" class="auth-link">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clerk.js Script -->
+    <script src="https://clerk.com/docs/clerk.js"></script>
+    <script>
+        // Clerk initialization
+        const clerk = new Clerk('pk_test_YnVyc3Rpbmctc3RhZy03MC5jbGVyay5hY2NvdW50cy5kZXYk');
+
+        clerk.load().then(() => {
+            // Show Clerk sign-up component
+            const signUpComponent = clerk.mountSignUpComponent('#clerk-sign-up', {
+                afterSignUpUrl: '/dashboard',
+                signInUrl: '/login',
+                redirectUrl: '/dashboard'
+            });
+
+            // Fallback form handling
+            document.getElementById('signup-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmPassword');
+
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match');
+                    return;
+                }
+
+                try {
+                    await clerk.signUp.create({
+                        firstName: formData.get('firstName'),
+                        lastName: formData.get('lastName'),
+                        emailAddress: formData.get('email'),
+                        password: password,
+                        publicMetadata: {
+                            role: formData.get('role')
+                        }
+                    });
+                    
+                    window.location.href = '/dashboard';
+                } catch (error) {
+                    console.error('Signup error:', error);
+                    showError('Failed to create account. Please try again.');
+                }
+            });
+
+            // Social signup handlers
+            document.querySelectorAll('.social-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const provider = e.target.textContent.includes('Google') ? 'google' :
+                                   e.target.textContent.includes('GitHub') ? 'github' : 'microsoft';
+                    
+                    try {
+                        await clerk.authenticateWithRedirect({
+                            strategy: `oauth_${provider}`,
+                            redirectUrl: '/dashboard',
+                            redirectUrlComplete: '/dashboard'
+                        });
+                    } catch (error) {
+                        console.error('Social signup error:', error);
+                        showError(`Failed to sign up with ${provider}`);
+                    }
+                });
+            });
+        });
+
+        // Password visibility toggles
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            togglePasswordVisibility('password', this);
+        });
+
+        document.querySelector('.toggle-password-confirm').addEventListener('click', function() {
+            togglePasswordVisibility('confirm-password', this);
+        });
+
+        function togglePasswordVisibility(inputId, button) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strength = calculatePasswordStrength(password);
+            updatePasswordStrength(strength);
+        });
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 25;
+            if (password.length >= 12) strength += 25;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 12.5;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 12.5;
+            
+            return Math.min(strength, 100);
+        }
+
+        function updatePasswordStrength(strength) {
+            const strengthBar = document.querySelector('.strength-bar');
+            const strengthText = document.querySelector('.strength-text');
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 30) {
+                strengthBar.className = 'progress-bar strength-bar bg-danger';
+                strengthText.textContent = 'Weak password';
+                strengthText.className = 'strength-text text-danger';
+            } else if (strength < 60) {
+                strengthBar.className = 'progress-bar strength-bar bg-warning';
+                strengthText.textContent = 'Fair password';
+                strengthText.className = 'strength-text text-warning';
+            } else if (strength < 80) {
+                strengthBar.className = 'progress-bar strength-bar bg-info';
+                strengthText.textContent = 'Good password';
+                strengthText.className = 'strength-text text-info';
+            } else {
+                strengthBar.className = 'progress-bar strength-bar bg-success';
+                strengthText.textContent = 'Strong password';
+                strengthText.className = 'strength-text text-success';
+            }
+        }
+
+        function showError(message) {
+            // Create error alert
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.querySelector('.auth-card').insertBefore(errorDiv, document.querySelector('#clerk-sign-up'));
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

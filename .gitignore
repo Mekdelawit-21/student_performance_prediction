@@ -1,0 +1,45 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+env/
+ENV/
+venv_new/
+venv_*/
+
+# Large binary files
+*.dll
+*.exe
+*.so
+*.dylib
+*.pkl
+*.joblib
+*.h5
+*.pb
+*.onnx

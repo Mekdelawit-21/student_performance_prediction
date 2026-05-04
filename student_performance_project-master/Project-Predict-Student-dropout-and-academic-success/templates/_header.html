@@ -1,0 +1,23 @@
+<!-- Reusable Header Component for Dropout App -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="nav-brand" href="/">
+            <i class="fas fa-book-open"></i>
+            Dropout Predictor
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="/predict" class="nav-link {% if request.endpoint == 'predict' %}active{% endif %}">
+                <i class="fas fa-chart-line"></i> Predict
+            </a>
+            <a href="/upload" class="nav-link {% if request.endpoint == 'upload' %}active{% endif %}">
+                <i class="fas fa-upload"></i> Upload CSV
+            </a>
+            <a href="/history" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">
+                <i class="fas fa-history"></i> History
+            </a>
+        </div>
+    </div>
+</nav>

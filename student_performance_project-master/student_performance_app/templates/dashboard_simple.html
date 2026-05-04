@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Performance Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Simple header without authentication -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-book-open"></i>
+                Student Performance Predictor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'pass_fail_page' %}active{% endif %}" href="{{ url_for('pass_fail_page') }}">
+                            <i class="fas fa-check-circle me-1"></i> Pass/Fail
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'score_prediction_page' %}active{% endif %}" href="{{ url_for('score_prediction_page') }}">
+                            <i class="fas fa-chart-line me-1"></i> Score Prediction
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dropout_prediction_page' %}active{% endif %}" href="{{ url_for('dropout_prediction_page') }}">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Dropout Risk
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('pass_fail_page') }}">
+                                <i class="fas fa-check-circle me-2"></i>Pass/Fail Prediction
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('score_prediction_page') }}">
+                                <i class="fas fa-chart-line me-2"></i>Score Prediction
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dropout_prediction_page') }}">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Dropout Risk
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-history me-2"></i>Prediction History
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Print</button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Welcome Card -->
+                <div class="welcome-card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="fas fa-graduation-cap me-2"></i>Welcome to Your Dashboard!
+                        </h2>
+                        <p class="card-text">Track your academic performance and get personalized predictions to help you succeed.</p>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Predictions Made</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">24</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-chart-bar fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Success Rate</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">85%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg Score</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">78.5</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-award fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Risk Level</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">Low</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-shield-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <button class="btn btn-primary w-100" onclick="navigateToPrediction('pass_fail')">
+                                            <i class="fas fa-check-circle me-2"></i>Pass/Fail Prediction
+                                        </button>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <button class="btn btn-success w-100" onclick="navigateToPrediction('score')">
+                                            <i class="fas fa-chart-line me-2"></i>Score Prediction
+                                        </button>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <button class="btn btn-warning w-100" onclick="navigateToPrediction('dropout')">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>Dropout Risk
+                                        </button>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <button class="btn btn-info w-100" onclick="showHistory()">
+                                            <i class="fas fa-history me-2"></i>View History
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Pass/Fail Prediction
+                                        </div>
+                                        <small class="text-muted">2 hours ago</small>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-chart-line text-primary me-2"></i>
+                                            Score Prediction
+                                        </div>
+                                        <small class="text-muted">5 hours ago</small>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                            Dropout Risk Analysis
+                                        </div>
+                                        <small class="text-muted">1 day ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">Quick Tips</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-lightbulb me-2"></i>
+                                            <strong>Study Tip:</strong> Maintain at least 80% attendance for better academic performance.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-chart-line me-2"></i>
+                                            <strong>Performance:</strong> Regular practice improves prediction accuracy.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-shield-alt me-2"></i>
+                                            <strong>Risk Management:</strong> Early intervention reduces dropout risk.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '{{ url_for("logout") }}';
+            }
+        }
+
+        function navigateToPrediction(type) {
+            switch(type) {
+                case 'pass_fail':
+                    window.location.href = '{{ url_for("pass_fail_page") }}';
+                    break;
+                case 'score':
+                    window.location.href = '{{ url_for("score_prediction_page") }}';
+                    break;
+                case 'dropout':
+                    window.location.href = '{{ url_for("dropout_prediction_page") }}';
+                    break;
+            }
+        }
+
+        function showHistory() {
+            alert('Prediction history feature coming soon!');
+        }
+    </script>
+</body>
+</html>

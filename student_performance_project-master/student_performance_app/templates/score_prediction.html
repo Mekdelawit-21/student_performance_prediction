@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Prediction - Student Performance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Include consistent header -->
+{% include '_header.html' %}
+
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Page Header -->
+                    <div class="text-center mb-5">
+                        <h1 class="display-5 fw-bold mb-3">
+                            <i class="fas fa-chart-line text-primary me-3"></i>
+                            Exam Score Prediction
+                        </h1>
+                        <p class="lead text-muted">
+                            Get precise predictions of your exam scores with detailed performance analysis
+                        </p>
+                    </div>
+
+                    <!-- Prediction Form -->
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-5">
+                            <form id="scorePredictionForm">
+                                <div class="row g-4">
+                                    <!-- Study Hours -->
+                                    <div class="col-md-6">
+                                        <label for="study_hours" class="form-label fw-bold">
+                                            <i class="fas fa-clock me-2 text-primary"></i>
+                                            Daily Study Hours
+                                        </label>
+                                        <input type="number" class="form-control form-control-lg" id="study_hours" 
+                                               min="1" max="12" step="0.5" value="4" required>
+                                        <div class="form-text">Hours spent studying per day</div>
+                                    </div>
+
+                                    <!-- Previous Exam Score -->
+                                    <div class="col-md-6">
+                                        <label for="prev_exam_score" class="form-label fw-bold">
+                                            <i class="fas fa-chart-bar me-2 text-success"></i>
+                                            Previous Exam Score
+                                        </label>
+                                        <input type="number" class="form-control form-control-lg" id="prev_exam_score" 
+                                               min="0" max="100" value="65" required>
+                                        <div class="form-text">Score in previous exam (0-100)</div>
+                                    </div>
+
+                                    <!-- Attendance -->
+                                    <div class="col-md-6">
+                                        <label for="attendance" class="form-label fw-bold">
+                                            <i class="fas fa-user-check me-2 text-info"></i>
+                                            Attendance Rate
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="range" class="form-range" id="attendance" 
+                                                   min="0" max="100" value="80">
+                                            <span class="input-group-text" id="attendance_value">80%</span>
+                                        </div>
+                                        <div class="form-text">Class attendance percentage</div>
+                                    </div>
+
+                                    <!-- Assignment Score -->
+                                    <div class="col-md-6">
+                                        <label for="assignment_score" class="form-label fw-bold">
+                                            <i class="fas fa-tasks me-2 text-warning"></i>
+                                            Assignment Score
+                                        </label>
+                                        <input type="number" class="form-control form-control-lg" id="assignment_score" 
+                                               min="0" max="100" value="70" required>
+                                        <div class="form-text">Average assignment score (0-100)</div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5" id="predictBtn">
+                                        <i class="fas fa-calculator me-2"></i>
+                                        Predict Score
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="resultsSection" class="mt-5" style="display: none;">
+                        <div class="card border-0 shadow-lg result-card">
+                            <div class="card-body p-5">
+                                <h3 class="card-title text-center mb-4">
+                                    <i class="fas fa-trophy me-2"></i>
+                                    Your Predicted Score
+                                </h3>
+                                
+                                <div id="scoreResult">
+                                    <!-- Score result will be inserted here -->
+                                </div>
+
+                                <!-- Grade Display -->
+                                <div id="gradeDisplay" class="text-center my-4">
+                                    <!-- Grade will be inserted here -->
+                                </div>
+
+                                <!-- Performance Level -->
+                                <div id="performanceLevel" class="text-center mb-4">
+                                    <!-- Performance level will be inserted here -->
+                                </div>
+
+                                <!-- Score Gauge -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="score-gauge">
+                                            <div class="gauge-container">
+                                                <div class="gauge-circle">
+                                                    <div class="gauge-fill" id="gaugeFill"></div>
+                                                    <div class="gauge-center">
+                                                        <span id="gaugeScore" class="gauge-score">0</span>
+                                                        <span class="gauge-label">Score</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recommendations -->
+                                <div id="scoreRecommendations" class="mt-4">
+                                    <!-- Recommendations will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="text-center mt-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Calculating your predicted score...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Student Performance Predictor</h5>
+                    <p class="text-muted">Empowering students with data-driven insights for academic success.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        © 2024 Student Performance Prediction System. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update attendance value display
+        document.getElementById('attendance').addEventListener('input', function() {
+            document.getElementById('attendance_value').textContent = this.value + '%';
+        });
+
+        // Form submission
+        document.getElementById('scorePredictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            predictScore();
+        });
+
+        function predictScore() {
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            // Get form values
+            const data = {
+                study_hours: parseFloat(document.getElementById('study_hours').value),
+                prev_exam_score: parseFloat(document.getElementById('prev_exam_score').value),
+                attendance: parseFloat(document.getElementById('attendance').value) / 100,
+                assignment_score: parseFloat(document.getElementById('assignment_score').value)
+            };
+
+            // Send prediction request
+            fetch('/predict_score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                displayScoreResults(result);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while making the prediction. Please try again.');
+            })
+            .finally(() => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            });
+        }
+
+        function displayScoreResults(result) {
+            if (result.error) {
+                alert('Error: ' + result.error);
+                return;
+            }
+
+            // Update score result
+            const scoreResult = document.getElementById('scoreResult');
+            scoreResult.innerHTML = `
+                <div class="text-center">
+                    <div class="score-display">
+                        <h2 class="display-1 fw-bold text-primary">${result.predicted_score}</h2>
+                        <p class="lead text-muted">Predicted Exam Score (out of 100)</p>
+                    </div>
+                </div>
+            `;
+
+            // Update grade display
+            const gradeDisplay = document.getElementById('gradeDisplay');
+            const gradeClass = getGradeClass(result.grade);
+            gradeDisplay.innerHTML = `
+                <div class="grade-badge">
+                    <span class="badge bg-${gradeClass} fs-2 px-4 py-2">
+                        Grade: ${result.grade}
+                    </span>
+                </div>
+            `;
+
+            // Update performance level
+            const performanceLevel = document.getElementById('performanceLevel');
+            const performanceClass = getPerformanceClass(result.performance_level);
+            performanceLevel.innerHTML = `
+                <div class="performance-badge">
+                    <h4 class="text-${performanceClass}">
+                        <i class="fas fa-star me-2"></i>
+                        ${result.performance_level} Performance
+                    </h4>
+                </div>
+            `;
+
+            // Update gauge
+            updateScoreGauge(result.predicted_score);
+
+            // Generate recommendations
+            const recommendations = generateScoreRecommendations(result);
+            document.getElementById('scoreRecommendations').innerHTML = `
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Improvement Recommendations
+                    </h5>
+                    <ul class="mb-0">
+                        ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getGradeClass(grade) {
+            const gradeClasses = {
+                'A': 'success',
+                'B': 'info',
+                'C': 'warning',
+                'D': 'secondary',
+                'F': 'danger'
+            };
+            return gradeClasses[grade] || 'secondary';
+        }
+
+        function getPerformanceClass(level) {
+            const performanceClasses = {
+                'Excellent': 'success',
+                'Good': 'info',
+                'Average': 'warning',
+                'Below Average': 'secondary',
+                'Poor': 'danger'
+            };
+            return performanceClasses[level] || 'secondary';
+        }
+
+        function updateScoreGauge(score) {
+            const gaugeFill = document.getElementById('gaugeFill');
+            const gaugeScore = document.getElementById('gaugeScore');
+            
+            // Calculate rotation for the gauge (0-180 degrees)
+            const rotation = (score / 100) * 180;
+            
+            // Set gauge fill rotation
+            gaugeFill.style.transform = `rotate(${rotation}deg)`;
+            
+            // Update score display
+            gaugeScore.textContent = score.toFixed(1);
+            
+            // Set color based on score
+            let color = '#dc3545'; // Red for low scores
+            if (score >= 80) color = '#28a745'; // Green for high scores
+            else if (score >= 60) color = '#ffc107'; // Yellow for medium scores
+            else if (score >= 40) color = '#fd7e14'; // Orange for low-medium scores
+            
+            gaugeFill.style.background = `conic-gradient(${color} 0deg ${rotation}deg, #e9ecef ${rotation}deg 180deg)`;
+        }
+
+        function generateScoreRecommendations(result) {
+            const recommendations = [];
+            const score = result.predicted_score;
+            
+            if (score < 60) {
+                recommendations.push('Increase daily study hours significantly (aim for 6+ hours)');
+                recommendations.push('Focus on understanding fundamental concepts');
+                recommendations.push('Seek tutoring or additional help from instructors');
+                recommendations.push('Practice with past exam papers regularly');
+            } else if (score < 80) {
+                recommendations.push('Maintain consistent study schedule');
+                recommendations.push('Focus on weak areas identified in previous exams');
+                recommendations.push('Form study groups for collaborative learning');
+                recommendations.push('Take practice tests to improve time management');
+            } else {
+                recommendations.push('Continue your excellent study habits');
+                recommendations.push('Challenge yourself with advanced problems');
+                recommendations.push('Help peers who may be struggling');
+                recommendations.push('Prepare for competitive exams if interested');
+            }
+            
+            // Add specific recommendations based on grade
+            if (result.grade === 'A' || result.grade === 'B') {
+                recommendations.push('Consider taking on leadership roles in group projects');
+            } else if (result.grade === 'C' || result.grade === 'D') {
+                recommendations.push('Meet with instructors to discuss improvement strategies');
+            } else if (result.grade === 'F') {
+                recommendations.push('Immediate intervention required - meet with academic advisor');
+            }
+            
+            return recommendations;
+        }
+    </script>
+
+    <style>
+        .score-gauge {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .gauge-container {
+            position: relative;
+        }
+
+        .gauge-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#28a745 0deg 0deg, #e9ecef 0deg 180deg);
+            transition: transform 0.5s ease;
+        }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: white;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gauge-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+
+        .grade-badge, .performance-badge {
+            margin: 1rem 0;
+        }
+    </style>
+</body>
+</html>

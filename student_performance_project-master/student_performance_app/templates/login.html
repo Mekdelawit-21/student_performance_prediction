@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Student Performance Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo-section">
+                    <i class="fas fa-book-open"></i>
+                    <h2>Student Performance Predictor</h2>
+                </div>
+                <p class="auth-subtitle">Sign in to access your academic dashboard</p>
+            </div>
+
+            <!-- Clerk Sign In Component -->
+            <div id="clerk-sign-in"></div>
+
+            <!-- Alternative Login Form (Fallback) -->
+            <form id="login-form" class="auth-form" style="display: none;">
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope me-2"></i>Email Address
+                    </label>
+                    <input type="email" class="form-control" id="email" name="email" required 
+                           placeholder="Enter your email">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>Password
+                    </label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" id="password" name="password" required 
+                               placeholder="Enter your password">
+                        <button type="button" class="btn btn-outline-secondary toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="remember-me">
+                    <label class="form-check-label" for="remember-me">
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-btn w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+
+            <!-- Social Login Options -->
+            <div class="social-login">
+                <button class="btn btn-outline-primary social-btn">
+                    <i class="fab fa-google me-2"></i>Continue with Google
+                </button>
+                <button class="btn btn-outline-dark social-btn">
+                    <i class="fab fa-github me-2"></i>Continue with GitHub
+                </button>
+                <button class="btn btn-outline-info social-btn">
+                    <i class="fab fa-microsoft me-2"></i>Continue with Microsoft
+                </button>
+            </div>
+
+            <div class="auth-footer">
+                <p>Don't have an account? 
+                    <a href="{{ url_for('signup') }}" class="auth-link">Sign up here</a>
+                </p>
+                <p>
+                    <a href="{{ url_for('forgot_password') }}" class="auth-link">Forgot your password?</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clerk.js Script -->
+    <script src="https://clerk.com/docs/clerk.js"></script>
+    <script>
+        // Clerk initialization
+        const clerk = new Clerk('pk_test_YnVyc3Rpbmctc3RhZy03MC5jbGVyay5hY2NvdW50cy5kZXYk');
+
+        clerk.load().then(() => {
+            // Show Clerk sign-in component
+            const signInComponent = clerk.mountSignInComponent('#clerk-sign-in', {
+                afterSignInUrl: '/dashboard',
+                signUpUrl: '/signup',
+                redirectUrl: '/dashboard'
+            });
+
+            // Fallback form handling
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    await clerk.signIn.create({
+                        identifier: email,
+                        password: password
+                    });
+                    
+                    window.location.href = '/dashboard';
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showError('Invalid email or password');
+                }
+            });
+
+            // Social login handlers
+            document.querySelectorAll('.social-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const provider = e.target.textContent.includes('Google') ? 'google' :
+                                   e.target.textContent.includes('GitHub') ? 'github' : 'microsoft';
+                    
+                    try {
+                        await clerk.authenticateWithRedirect({
+                            strategy: `oauth_${provider}`,
+                            redirectUrl: '/dashboard',
+                            redirectUrlComplete: '/dashboard'
+                        });
+                    } catch (error) {
+                        console.error('Social login error:', error);
+                        showError(`Failed to sign in with ${provider}`);
+                    }
+                });
+            });
+        });
+
+        // Password visibility toggle
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        function showError(message) {
+            // Create error alert
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.querySelector('.auth-card').insertBefore(errorDiv, document.querySelector('#clerk-sign-in'));
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
